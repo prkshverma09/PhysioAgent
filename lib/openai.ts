@@ -210,7 +210,7 @@ Keep it conversational and encouraging.`
 
 // Helper function to check if OpenAI is available
 export function isOpenAIAvailable(): boolean {
-  return openai !== null && !!process.env.OPENAI_API_KEY;
+  return openai !== null;
 }
 
 // Function to analyze user input for pain information
