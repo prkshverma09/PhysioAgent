@@ -11,10 +11,8 @@ import {
   Volume2, 
   VolumeX, 
   Settings, 
-  Play, 
   Pause, 
-  Stop,
-  Waveform
+  Square
 } from 'lucide-react'
 import { voiceServices, VoiceSettings, SpeechRecognitionResult } from '@/lib/voice-services'
 
@@ -141,7 +139,7 @@ export function VoiceControls({
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Waveform className="w-5 h-5" />
+            <Mic className="w-5 h-5" />
             Voice Controls
           </CardTitle>
         </CardHeader>
@@ -212,7 +210,7 @@ export function VoiceControls({
                     variant="outline"
                     size="sm"
                   >
-                    <Stop className="w-4 h-4" />
+                    <Square className="w-4 h-4" />
                   </Button>
                 </>
               )}

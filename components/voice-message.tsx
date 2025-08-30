@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Mic, MicOff, Volume2, Waveform } from 'lucide-react'
+import { Mic, MicOff, Volume2 } from 'lucide-react'
 import { SpeechRecognitionResult } from '@/lib/voice-services'
 
 interface VoiceMessageProps {
@@ -53,7 +53,7 @@ export function VoiceMessage({ result, isListening, isSpeaking }: VoiceMessagePr
               {/* Status Indicator */}
               {!isFinal && (
                 <div className="flex items-center gap-1">
-                  <Waveform className="w-3 h-3 text-blue-500 animate-pulse" />
+                  <Volume2 className="w-3 h-3 text-blue-500 animate-pulse" />
                   <span className="text-xs text-blue-500">Processing...</span>
                 </div>
               )}
