@@ -3,14 +3,15 @@ import OpenAI from 'openai';
 // Initialize OpenAI client only if API key is available
 let openai: OpenAI | null = null;
 
-try {
-  if (process.env.OPENAI_API_KEY) {
+// Only initialize on server side
+if (typeof window === 'undefined' && process.env.OPENAI_API_KEY) {
+  try {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+  } catch (error) {
+    console.warn('OpenAI client initialization failed:', error);
   }
-} catch (error) {
-  console.warn('OpenAI client initialization failed:', error);
 }
 
 export interface ConversationContext {
@@ -209,8 +210,20 @@ Keep it conversational and encouraging.`
 }
 
 // Helper function to check if OpenAI is available
-export function isOpenAIAvailable(): boolean {
-  return openai !== null;
+export async function isOpenAIAvailable(): Promise<boolean> {
+  // Only check on server side, client side will always return false
+  if (typeof window !== 'undefined') {
+    return false;
+  }
+  return openai !== null && !!process.env.OPENAI_API_KEY;
+}
+
+// Synchronous version for backward compatibility
+export function isOpenAIAvailableSync(): boolean {
+  if (typeof window !== 'undefined') {
+    return false;
+  }
+  return openai !== null && !!process.env.OPENAI_API_KEY;
 }
 
 // Function to analyze user input for pain information
