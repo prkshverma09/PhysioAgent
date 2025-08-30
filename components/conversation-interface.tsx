@@ -11,6 +11,7 @@ import {
   generatePhysioResponse, 
   generateExerciseRecommendation,
   extractPainInfo,
+  isOpenAIAvailable,
   type ConversationContext,
   type PhysioResponse 
 } from "@/lib/openai"
@@ -54,10 +55,12 @@ export function ConversationInterface({ onShowExercise }: ConversationInterfaceP
   // Start conversation with welcome message
   useEffect(() => {
     const timer = setTimeout(() => {
-      addMessage(
-        "Hello! I'm Fit4Life, your AI physiotherapy assistant. I can help you with pain assessment, exercise recommendations, and guidance. You can type or speak to me - just click the microphone button to start voice interaction.",
-        "agent"
-      )
+      const isAIEnabled = isOpenAIAvailable();
+      const welcomeMessage = isAIEnabled 
+        ? "Hello! I'm Fit4Life, your AI physiotherapy assistant. I can help you with pain assessment, exercise recommendations, and guidance. You can type or speak to me - just click the microphone button to start voice interaction."
+        : "Hello! I'm Fit4Life, your physiotherapy assistant. I can help you with basic pain assessment and exercise guidance. For enhanced AI features, please add your OpenAI API key to the environment variables.";
+      
+      addMessage(welcomeMessage, "agent")
     }, 1000)
 
     return () => clearTimeout(timer)
@@ -171,10 +174,13 @@ export function ConversationInterface({ onShowExercise }: ConversationInterfaceP
 
     } catch (error) {
       console.error('Error generating response:', error)
-      await addMessage(
-        "I'm having trouble processing that right now. Please try again.",
-        "agent"
-      )
+      
+      // Provide fallback response when AI is not available
+      const fallbackResponse = isOpenAIAvailable() 
+        ? "I'm having trouble processing that right now. Please try again."
+        : "I understand your message. For more detailed AI responses, please add your OpenAI API key to enable enhanced features.";
+      
+      await addMessage(fallbackResponse, "agent")
     } finally {
       setIsProcessing(false)
     }
@@ -245,11 +251,16 @@ export function ConversationInterface({ onShowExercise }: ConversationInterfaceP
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-            Fit4Life AI Assistant
+            <div className={`w-3 h-3 rounded-full animate-pulse ${isOpenAIAvailable() ? 'bg-green-500' : 'bg-yellow-500'}`} />
+            Fit4Life {isOpenAIAvailable() ? 'AI Assistant' : 'Assistant'}
             {painLevel && (
               <span className="text-sm text-muted-foreground ml-2">
                 Pain Level: {painLevel}/10 {painLocation && `(${painLocation})`}
+              </span>
+            )}
+            {!isOpenAIAvailable() && (
+              <span className="text-xs text-yellow-600 ml-2 bg-yellow-100 px-2 py-1 rounded">
+                Basic Mode
               </span>
             )}
           </CardTitle>

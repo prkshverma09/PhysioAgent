@@ -1,8 +1,17 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI client only if API key is available
+let openai: OpenAI | null = null;
+
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+} catch (error) {
+  console.warn('OpenAI client initialization failed:', error);
+}
 
 export interface ConversationContext {
   messages: Array<{
@@ -32,6 +41,15 @@ export async function generatePhysioResponse(
   userMessage: string, 
   context: ConversationContext
 ): Promise<PhysioResponse> {
+  // Check if OpenAI is available
+  if (!openai) {
+    return {
+      text: "I'm currently offline. Please add your OpenAI API key to enable AI features. For now, I can help you with basic pain assessment and exercise guidance.",
+      shouldSpeak: false,
+      confidence: 0.0
+    };
+  }
+
   try {
     // Build conversation history for context
     const conversationHistory = context.messages
@@ -127,6 +145,15 @@ export async function generateExerciseRecommendation(
   painLocation: string,
   context: ConversationContext
 ): Promise<PhysioResponse> {
+  // Check if OpenAI is available
+  if (!openai) {
+    return {
+      text: "I can help you with some exercises. Let's start with a gentle one.",
+      shouldSpeak: true,
+      confidence: 0.7
+    };
+  }
+
   try {
     const exercisePrompt = `Based on the patient's pain level ${painLevel}/10 and location "${painLocation}", suggest 1-2 appropriate exercises.
 
@@ -179,6 +206,11 @@ Keep it conversational and encouraging.`
       confidence: 0.7
     };
   }
+}
+
+// Helper function to check if OpenAI is available
+export function isOpenAIAvailable(): boolean {
+  return openai !== null && !!process.env.OPENAI_API_KEY;
 }
 
 // Function to analyze user input for pain information
